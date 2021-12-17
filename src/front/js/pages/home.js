@@ -1,26 +1,69 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom"
 import { Context } from "../store/appContext";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
+import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardTitle, CardFooter } from "reactstrap"
 
 export const Home = () => {
 	const { store, actions } = useContext(Context);
 
 	return (
-		<div className="text-center mt-5">
-			<h1>Hello Rigo!!</h1>
-			<p>
-				<img src={rigoImageUrl} />
-			</p>
-			<div className="alert alert-info">
-				{store.message || "Loading message from the backend (make sure your python backend is running)..."}
-			</div>
-			<p>
-				This boilerplate comes with lots of documentation:{" "}
-				<a href="https://github.com/4GeeksAcademy/react-flask-hello/tree/95e0540bd1422249c3004f149825285118594325/docs">
-					Read documentation
-				</a>
-			</p>
+		<div className="container text-center mt-5 " id="loginCard">
+			<Card >
+				<CardBody >
+					<CardTitle tag="h5">
+						Welcome
+					</CardTitle>
+					<Form inline>
+						<FormGroup>
+							<Label
+								for="exampleEmail"
+								hidden
+							>
+								Email
+							</Label>
+							<Input
+								id="exampleEmail"
+								name="email"
+								placeholder="Email"
+								type="email"
+								onChange={(e) => { actions.captureEmail(e); }}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<Label
+								for="examplePassword"
+								hidden
+							>
+								Password
+							</Label>
+							<Input
+								id="examplePassword"
+								name="password"
+								placeholder="Password"
+								type="password"
+								onChange={(e) => { actions.capturePassword(e) }}
+							/>
+						</FormGroup>
+						<Button
+							onClick={() => {
+								actions.login()
+							}}>
+							Login
+						</Button>
+					</Form>
+					<CardFooter className="text-muted" id="loginFooter">
+						Don&apos;t have an active user?
+						<br></br>
+						<Link to="/signin">
+							<Button
+								size="sm">
+								Create user
+							</Button>
+						</Link>
+					</CardFooter>
+				</CardBody>
+			</Card>
 		</div>
 	);
 };

@@ -1,46 +1,67 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			logged: false,
+			email: "",
+			username: "",
+			password: "",
+			token: "",
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+			createUser: () => {
+				let store = getStore()
+				var myHeaders = new Headers();
+				myHeaders.append("Content-Type", "application/json");
 
-			getMessage: () => {
-				// fetching data from the backend
-				fetch(process.env.BACKEND_URL + "/api/hello")
-					.then(resp => resp.json())
-					.then(data => setStore({ message: data.message }))
-					.catch(error => console.log("Error loading message from backend", error));
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
+				var raw = JSON.stringify({
+					"name": store.username,
+					"email": store.email,
+					"password": store.password
 				});
 
-				//reset the global store
-				setStore({ demo: demo });
+				var requestOptions = {
+					method: 'POST',
+					headers: myHeaders,
+					body: raw,
+					redirect: 'follow'
+				};
+
+				fetch("https://3001-plum-camel-3sp7ar85.ws-us23.gitpod.io/api/users", requestOptions)
+					.then(response => response.text())
+					.then(result => (console.log(result)))
+					.catch(error => console.log('error', error));
+			},
+			login: () => {
+				let store = getStore()
+				var myHeaders = new Headers();
+				myHeaders.append("Content-Type", "application/json");
+
+				var raw = JSON.stringify({
+					"email": store.email,
+					"password": store.password
+				});
+
+				var requestOptions = {
+					method: 'POST',
+					headers: myHeaders,
+					body: raw,
+					redirect: 'follow'
+				};
+
+				fetch("https://3001-plum-camel-3sp7ar85.ws-us23.gitpod.io/api/login", requestOptions)
+					.then(response => response.json())
+					.then(result => sessionStorage.setItem('tokeninfo', JSON.stringify({ created_at: new Date(), token: result.token })))
+					.catch(error => console.log('error', error));
+			},
+			captureName: (e) => {
+				setStore({ username: e.target.value });
+			},
+
+			captureEmail: (e) => {
+				setStore({ email: e.target.value });
+			},
+			capturePassword: (e) => {
+				setStore({ password: e.target.value });
 			}
 		}
 	};

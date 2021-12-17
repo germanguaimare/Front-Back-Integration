@@ -4,15 +4,75 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import datetime
 
 api = Blueprint('api', __name__)
 
+def validation (body) :
+        if body is None:
+            return "You must type your name, an email and password", 400
+        if "email" not in body:
+            return "You must type your email", 400
+        if "password" not in body:
+            return "You must type your password", 400  
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+@api.route('/users', methods=['GET',"POST"])
+def manage_users():
+    if request.method == "GET":
+        all_users = User.query.all()
+        all_users = list(map(lambda x: x.serialize(),all_users))
+        return jsonify(all_users), 200
+    else:
+        body = request.get_json()
+        validation(body)
+        if "name" not in body:
+            return "You must type your name", 400
 
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
+        searchUsers = User.query.filter_by(email=body["email"]).first()
+        
+        if searchUsers is None:
+            name = body['name']
+            email = body['email']
+            password = body['password'] 
+            is_active = True 
 
-    return jsonify(response_body), 200
+            newUser = User()  
+            newUser.name= name
+            newUser.email = email
+            newUser.password = password
+            newUser.is_active = is_active
+            db.session.add(newUser)
+            db.session.commit()
+            message = name + " has created a new user with the following email: " + email
+            return message, 200
+        
+
+
+@api.route('/login', methods=["POST"])
+def login():
+    if request.method == "POST":
+        body = request.get_json()
+        validation(body)
+
+        searchUsers = User.query.filter_by(email=body["email"]).first()
+        
+        if searchUsers:
+            if searchUsers.password == body["password"]:
+                time = datetime.timedelta(minutes=2)
+                access_token = create_access_token(identity=body["email"], expires_delta=time)
+                response = {
+                    "email": body["email"], "token":access_token, "expires_in": time.total_seconds()
+                        }
+                return jsonify(response), 200
+            else:
+                return jsonify("Wrong email or password")
+        else:
+            return jsonify("Please go to the Sign In page to create your User"), 200
+
+@api.route('/private', methods=["GET"])
+@jwt_required()
+def private():
+    if request.method == "GET":
+        token = get_jwt_identity()
+        return jsonify({"success":"You accesed your private dashboard", "user":token}), 200
