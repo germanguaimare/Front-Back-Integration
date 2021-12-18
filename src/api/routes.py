@@ -9,14 +9,6 @@ import datetime
 
 api = Blueprint('api', __name__)
 
-def validation (body) :
-        if body is None:
-            return "You must type your name, an email and password", 400
-        if "email" not in body:
-            return "You must type your email", 400
-        if "password" not in body:
-            return "You must type your password", 400  
-
 @api.route('/users', methods=['GET',"POST"])
 def manage_users():
     if request.method == "GET":
@@ -25,7 +17,12 @@ def manage_users():
         return jsonify(all_users), 200
     else:
         body = request.get_json()
-        validation(body)
+        if body is None:
+            return "You must type your name, an email and password", 400
+        if "email" not in body:
+            return "You must type your email", 400
+        if "password" not in body:
+            return "You must type your password", 400  
         if "name" not in body:
             return "You must type your name", 400
 
@@ -53,7 +50,10 @@ def manage_users():
 def login():
     if request.method == "POST":
         body = request.get_json()
-        validation(body)
+        if "email" not in body:
+            return "You must type your email", 400
+        if "password" not in body:
+            return "You must type your password", 400 
 
         searchUsers = User.query.filter_by(email=body["email"]).first()
         

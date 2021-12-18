@@ -1,13 +1,35 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			logged: false,
 			email: "",
 			username: "",
 			password: "",
 			token: "",
 		},
 		actions: {
+			succesLogin: (result) => {
+				let store = getStore()
+				sessionStorage.setItem('token', result.token);
+				//setStore({ token: sessionStorage.getItem('token') });
+				//console.log(store.token)
+			},
+			sessionCheck: () => {
+				//let store = getStore()
+				let activeToken = sessionStorage.getItem('token')
+				var myHeaders = new Headers();
+				myHeaders.append("Authorization", `Bearer ${activeToken}`);
+
+				var requestOptions = {
+					method: 'GET',
+					headers: myHeaders,
+					redirect: 'follow'
+				};
+
+				fetch("https://3001-plum-camel-3sp7ar85.ws-us23.gitpod.io/api/private", requestOptions)
+					.then(response => response.text())
+					.then(result => console.log(result))
+					.catch(error => console.log('error', error));
+			},
 			createUser: () => {
 				let store = getStore()
 				var myHeaders = new Headers();
@@ -33,6 +55,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			login: () => {
 				let store = getStore()
+				let action = getActions()
 				var myHeaders = new Headers();
 				myHeaders.append("Content-Type", "application/json");
 
@@ -50,7 +73,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				fetch("https://3001-plum-camel-3sp7ar85.ws-us23.gitpod.io/api/login", requestOptions)
 					.then(response => response.json())
-					.then(result => sessionStorage.setItem('tokeninfo', JSON.stringify({ created_at: new Date(), token: result.token })))
+					//.then(result => sessionStorage.setItem('token', result.token))
+					.then(result => action.succesLogin(result))
 					.catch(error => console.log('error', error));
 			},
 			captureName: (e) => {
