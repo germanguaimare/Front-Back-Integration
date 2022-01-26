@@ -1,11 +1,15 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { Context } from "../store/appContext";
 import "../../styles/signin.css";
 import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardTitle } from "reactstrap"
 
 export const SignIn = () => {
+	const [name, setName] = useState("")
+	const [email, setEmail] = useState("")
+	const [password, setPassword] = useState("")
 	const { store, actions } = useContext(Context);
-
+	const history = useHistory()
 	return (
 		<div className="container text-center mt-5 " id="signupCard">
 			<Card >
@@ -27,7 +31,7 @@ export const SignIn = () => {
 								placeholder="Name"
 								type="text"
 								onChange={(e) => {
-									actions.captureName(e);
+									setName(e.target.value);
 								}}
 							/>
 							<Label
@@ -42,7 +46,7 @@ export const SignIn = () => {
 								placeholder="Email"
 								type="email"
 								onChange={(e) => {
-									actions.captureEmail(e);
+									setEmail(e.target.value);
 								}}
 							/>
 							<Label
@@ -56,7 +60,7 @@ export const SignIn = () => {
 								name="password1"
 								placeholder="Password"
 								type="password"
-								onChange={(e) => { actions.capturePassword(e) }}
+								onChange={(e) => { setPassword(e.target.value) }}
 							/>
 							<Label
 								for="examplePassword"
@@ -73,7 +77,7 @@ export const SignIn = () => {
 							/>
 						</FormGroup>
 						<Button onClick={() => {
-							actions.createUser()
+							actions.createUser(name, email, password, history)
 						}}>
 							Create User
 						</Button>

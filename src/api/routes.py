@@ -7,7 +7,7 @@ from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import datetime
 
-api = Blueprint('api', __name__)
+api = Blueprint('app', __name__)
 
 @api.route('/users', methods=['GET',"POST"])
 def manage_users():
@@ -41,11 +41,12 @@ def manage_users():
             newUser.is_active = is_active
             db.session.add(newUser)
             db.session.commit()
-            message = name + " has created a new user with the following email: " + email
+            message = "A new account has been created"
             return message, 200
+        else:
+            message = "There's an existing user with that email"
+            return message, 400
         
-
-
 @api.route('/login', methods=["POST"])
 def login():
     if request.method == "POST":
@@ -62,7 +63,7 @@ def login():
                 time = datetime.timedelta(minutes=2)
                 access_token = create_access_token(identity=body["email"], expires_delta=time)
                 response = {
-                    "email": body["email"], "token":access_token, "expires_in": time.total_seconds()
+                    "email": body["email"], "token":access_token, "expires_in": time.total_seconds(), "status": "ok"
                         }
                 return jsonify(response), 200
             else:
@@ -75,4 +76,4 @@ def login():
 def private():
     if request.method == "GET":
         token = get_jwt_identity()
-        return jsonify({"success":"You accesed your private dashboard", "user":token}), 200
+        return jsonify("You accesed your private dashboard"), 200

@@ -1,11 +1,14 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom"
+import React, { useContext, useState } from "react";
+import { Link, useHistory } from "react-router-dom"
 import { Context } from "../store/appContext";
 import "../../styles/home.css";
 import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardTitle, CardFooter } from "reactstrap"
 
 export const Home = () => {
 	const { store, actions } = useContext(Context);
+	const [email, setEmail] = useState("")
+	const [password, setPassword] = useState("")
+	const history = useHistory()
 
 	return (
 		<div className="container text-center mt-5 " id="loginCard">
@@ -27,7 +30,7 @@ export const Home = () => {
 								name="email"
 								placeholder="Email"
 								type="email"
-								onChange={(e) => { actions.captureEmail(e); }}
+								onChange={(e) => { setEmail(e.target.value); }}
 							/>
 						</FormGroup>
 						<FormGroup>
@@ -42,12 +45,12 @@ export const Home = () => {
 								name="password"
 								placeholder="Password"
 								type="password"
-								onChange={(e) => { actions.capturePassword(e) }}
+								onChange={(e) => { setPassword(e.target.value); }}
 							/>
 						</FormGroup>
 						<Button
 							onClick={() => {
-								actions.login()
+								actions.login(email, password, history)
 							}}>
 							Login
 						</Button>
